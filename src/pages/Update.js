@@ -9,6 +9,32 @@ const Update = () => {
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
   const [rating, setRating] = useState("");
+  const [formError, setFormError] = useState(null);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!title || !desc || !rating) {
+      setFormError("Please fill in all the fields correctly.");
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("games")
+      .update({ title, desc, rating })
+      .eq("id", id)
+      .select();
+
+    if (error) {
+      console.log(error);
+      setFormError("Please fill in all the fields correctly.");
+    }
+    if (data) {
+      console.log(data);
+      setFormError(null);
+      navigate("/");
+    }
+  };
 
   useEffect(() => {
     const fetchGame = async () => {
@@ -34,7 +60,7 @@ const Update = () => {
 
   return (
     <div className="page update">
-      <form>
+      <form onSubmit={handleSubmit}>
         <label htmlFor="title">Title:</label>
         <input
           type="text"
@@ -59,8 +85,8 @@ const Update = () => {
         />
 
         <button>Update Game</button>
-      
-        {/*formError && <p className="error">{formError}</p>*/}
+
+        {formError && <p className="error">{formError}</p>}
       </form>
     </div>
   );
